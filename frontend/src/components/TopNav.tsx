@@ -10,7 +10,7 @@ export default function TopNav() {
             ["habits", "/habits"],
             ["settings", "/settings"],
           ].map(([label, href]) => (
-            <a key={href} href={href} className="text-neutral-600 hover:text-neutral-900">
+            <a key={href} href={href} className="text-[#192752] hover:font-bold transition-all duration-200">
               {label}
             </a>
           ))}

@@ -10,13 +10,13 @@ type Day = {
 
 // Map DOW → color based on your style guide mock
 const colorByDOW: Record<Day["dow"], string> = {
-  Mon: "bg-[var(--color-gray-100)]",
+  Mon: "bg-[var(--color-orange)]",
   Tue: "bg-[var(--color-lemonyellow)]",
   Wed: "bg-[var(--color-blue)]",
   Thu: "bg-[var(--color-green)]",
   Fri: "bg-[var(--color-pink)]",
-  Sat: "bg-[var(--color-gray-100)]",
-  Sun: "bg-[var(--color-gray-100)]",
+  Sat: "bg-[var(--color-lemonyellow)]",
+  Sun: "bg-[var(--color-green)]",
 };
 
 // Static sample sequence matching the screenshot
@@ -34,14 +34,15 @@ export default function CalendarStrip() {
   return (
     <div className="no-scrollbar flex gap-3 overflow-x-auto md:overflow-visible md:flex-wrap md:justify-center md:gap-4">
       {days.map((d) => {
-        const base = colorByDOW[d.dow];
-        const muted = d.state === "past" || d.state === "future" ? "opacity-60" : "";
-        const todayRing = d.state === "today" ? "ring-2 ring-black/10" : "";
+        const stateClass = d.state === "past" ? "past" : d.state === "future" ? "future" : "";
+
+        const base = !stateClass ? colorByDOW[d.dow] : "";
+
         return (
-          <div key={d.day} className={["day-pill", base, muted, todayRing].filter(Boolean).join(" ")}> 
+          <div key={d.day} className={["day-pill", base, stateClass].filter(Boolean).join(" ")}> 
             <div className="text-3xl">{d.day}</div>
             <div className="dow">{d.dow}</div>
-            <div className="mt-2 text-neutral-700">🐰</div>
+            <div className="mt-2">🐰</div>
           </div>
         );
       })}

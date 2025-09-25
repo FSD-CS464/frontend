@@ -26,7 +26,7 @@ export default async function Page() {
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
         <h1 className="text-center text-4xl sm:text-6xl font-extrabold leading-tight">
-          <span className="block text-xl text-neutral-600">Good morning,</span>
+          <span className="block text-xl">Good morning,</span>
           Gregory!
         </h1>
 
@@ -65,7 +65,8 @@ export default async function Page() {
               </div>
             </div>
 
-            <a href="/pet-bar" className="inline-flex items-center gap-2 text-neutral-700">
+            <a href="/pet-bar"
+              className="mt-auto inline-flex items-center gap-2 font-semibold">
               Pet Bar →
             </a>
           </div>

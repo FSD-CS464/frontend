@@ -3,7 +3,7 @@ export default function MobileNav({ active = "home" }: { active?: string }) {
     ["pet", "/pet-bar", "🐾"],
     ["play", "/play", "🎮"],
     ["home", "/", "🏠"],
-    ["chat", "/support", "💬"],
+    ["chat", "/habits", "💬"],
     ["settings", "/settings", "⚙️"],
   ] as const;
 

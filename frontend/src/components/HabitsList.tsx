@@ -13,7 +13,7 @@ export default function HabitsList({ initial }: { initial: Habit[] }) {
   }, []);
 
   return (
-    <div className="card p-4 divide-y">
+    <div className="card p-4 divide-y divide-gray-200">
       {habits.map((h) => (
         <label key={h.id} className="flex items-center justify-between py-3 gap-3">
           <div className="flex items-center gap-3">
@@ -25,7 +25,7 @@ export default function HabitsList({ initial }: { initial: Habit[] }) {
             type="checkbox"
             checked={h.done}
             onChange={() => toggle(h.id)}
-            className="size-5 rounded border-neutral-300"
+            className="size-5 rounded border-neutral-300 accent-[#192752]"
           />
         </label>
       ))}

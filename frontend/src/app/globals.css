@@ -17,7 +17,10 @@
 
 :root { color-scheme: light; }
 html, body { height: 100%; }
-body { @apply bg-white text-neutral-900 antialiased; }
+body {
+  @apply bg-white antialiased;
+  color: #192752;
+}
 
 /* Utilities for the day pills */
 .day-pill {
@@ -26,10 +29,12 @@ body { @apply bg-white text-neutral-900 antialiased; }
   /* Keep the card proportion similar to mock */
   aspect-ratio: 5 / 6;
   /* Center everything */
-  @apply rounded-2xl grid place-content-center text-center font-bold shadow-sm shrink-0; /* shrink-0 keeps width in horizontal scroll */
+  @apply rounded-lg grid place-content-center text-center font-bold shadow-sm shrink-0; /* shrink-0 keeps width in horizontal scroll */
 }
-.day-pill .dow { @apply text-xs text-neutral-600; }
-.day-pill.muted { @apply opacity-50; }
+.day-pill .dow { @apply text-xs; }
+.day-pill.past { 
+  @apply bg-[#E0E0E0] text-[#B5B5B5]; 
+}
 
 /* Hide scrollbars for calendar strip on mobile */
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -42,4 +47,4 @@ body { @apply bg-white text-neutral-900 antialiased; }
 .mobile-nav { @apply fixed bottom-0 inset-x-0 border-t border-neutral-200 bg-white; }
 .mobile-nav ul { @apply grid grid-cols-5; }
 .mobile-nav a { @apply py-3 text-center text-sm; }
-.mobile-nav a.active { @apply font-semibold text-neutral-900; }
+.mobile-nav a.active { @apply font-bold; color: #192752; }
