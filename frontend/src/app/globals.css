@@ -15,6 +15,17 @@
   --color-muted: #737373;
 }
 
+@font-face {
+  font-family: "TsunagiGothic";
+  src: url("/fonts/TsunagiGothic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+.font-header {
+  font-family: "TsunagiGothic", sans-serif;
+}
+
 :root { color-scheme: light; }
 html, body { height: 100%; }
 body {
@@ -31,7 +42,7 @@ body {
   /* Center everything */
   @apply rounded-lg grid place-content-center text-center font-bold shadow-sm shrink-0; /* shrink-0 keeps width in horizontal scroll */
 }
-.day-pill .dow { @apply text-xs; }
+.day-pill .dow { @apply text-[16px]; }
 .day-pill.past { 
   @apply bg-[#E0E0E0] text-[#B5B5B5]; 
 }

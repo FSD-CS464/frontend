@@ -2,7 +2,7 @@ export default function TopNav() {
   return (
     <header className="hidden md:block">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 flex items-center justify-end">
-        <nav className="hidden md:flex gap-6 text-sm">
+        <nav className="hidden md:flex gap-6 text-md">
           {[
             ["home", "/"],
             ["pet bar", "/pet-bar"],
