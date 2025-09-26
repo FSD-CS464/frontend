@@ -57,13 +57,13 @@ export default function HabitsPage() {
           <div className="flex gap-4">
             <button
               aria-label="Create Habit"
-              className="p-2 rounded-full bg-gray-100 hover:bg-[#28A5FF] hover:text-white transform transition-transform duration-150 hover:scale-110"
+              className="p-2 rounded-full bg-gray-100 hover:bg-[#50E59F] hover:text-white transform transition-transform duration-150 hover:scale-110"
             >
               <PlusIcon />
             </button>
             <button
               aria-label="Edit Habit"
-              className="p-2 rounded-full bg-gray-100 hover:bg-[#50E59F] hover:text-white transform transition-transform duration-150 hover:scale-110"
+              className="p-2 rounded-full bg-gray-100 hover:bg-[#28A5FF] hover:text-white transform transition-transform duration-150 hover:scale-110"
             >
               <PencilIcon />
             </button>
