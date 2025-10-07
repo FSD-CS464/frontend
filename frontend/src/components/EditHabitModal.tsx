@@ -1,34 +1,56 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Habit, Repeat } from "@/types";
 import { XIcon } from "@/components/Icons";
 import EmojiPicker from "emoji-picker-react";
 
 type Props = {
-  open: Boolean,
+  open: boolean;
   onClose: () => void;
   onSave: (habit: Habit) => void;
+  habit?: Habit;
 };
 
-export default function CreateHabitModal({ open, onClose, onSave }: Props) {
+export default function EditHabitModal({ open, onClose, onSave, habit }: Props) {
   if (!open) return null;
 
-  const [title, setTitle] = useState("");
-  const [icon, setIcon] = useState("🌱");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [title, setTitle] = useState<string>("");
+  const [icon, setIcon] = useState<string>("🌱");
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [repeatType, setRepeatType] = useState<Repeat["type"]>("daily");
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
-  const [interval, setInterval] = useState(2);
-  const [error, setError] = useState("");
-  const [repeatError, setRepeatError] = useState("");
+  const [interval, setInterval] = useState<number>(2);
+  const [error, setError] = useState<string>("");
+  const [repeatError, setRepeatError] = useState<string>("");
 
-  const toggleDay = (day: number) => {
+  // Load habit data when modal opens or habit is updated
+  useEffect(() => {
+    if (habit) {
+      setTitle(habit.title);
+      setIcon(habit.icon); // Ensure icon is set properly from the passed habit
+      setRepeatType(habit.repeat.type);
+      if (habit.repeat.type === "weekly") {
+        setDaysOfWeek(habit.repeat.daysOfWeek || []);
+      } else if (habit.repeat.type === "everyN") {
+        setInterval(habit.repeat.interval || 2);
+      }
+    }
+  }, [habit, open]);
+
+  const toggleDay = useCallback((day: number) => {
     setDaysOfWeek((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    if (e.target.value.trim()) {
+      setError(""); // Remove error if title is valid
+    }
+  }, []);
+
+  const handleSave = useCallback(() => {
     if (!title.trim()) {
       setError("Title is required");
       return;
@@ -56,24 +78,17 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
       repeat = { type: "daily" };
     }
 
-    const newHabit: Habit = {
-      id: crypto.randomUUID(),
+    const updatedHabit: Habit = {
+      id: habit?.id || crypto.randomUUID(), // Keep existing habit ID if editing
       title,
-      icon,
-      done: false,
+      icon, // Ensure icon is included in the saved habit
+      done: habit?.done || false,
       repeat,
     };
 
-    onSave(newHabit);
-    onClose();
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-    if (e.target.value.trim()) {
-      setError(""); // Remove error if title is valid
-    }
-  };
+    onSave(updatedHabit); // Save habit when the button is clicked
+    onClose(); // Close the modal after saving
+  }, [title, repeatType, daysOfWeek, interval, icon, onSave, onClose, habit]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
@@ -86,8 +101,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
         </button>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-header">Create New Habit</h2>
-          {/* Close Icon Next to Title */}
+          <h2 className="text-2xl font-header">Edit Habit</h2>
           <button
             className="p-2 text-gray-500"
             onClick={onClose}
@@ -106,11 +120,11 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
             {icon}
           </button>
           {showEmojiPicker && (
-            <div className="mt-2 max-h-48 overflow-y-a">
+            <div className="mt-2 max-h-48 overflow-y-auto">
               <EmojiPicker
                 onEmojiClick={(emoji) => {
-                  setIcon(emoji.emoji);
-                  setShowEmojiPicker(false);
+                  setIcon(emoji.emoji); // Update icon state on emoji selection
+                  setShowEmojiPicker(false); // Hide picker after selecting
                 }}
                 searchPlaceholder="Search emoji..."
               />
@@ -123,14 +137,11 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
           <label className="block text-sm font-medium mb-1">Title</label>
           <input
             type="text"
-            className={`w-full border rounded-lg px-3 py-2 focus:outline-none ${
-              error ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full border rounded-lg px-3 py-2 focus:outline-none ${error ? "border-red-500" : "border-gray-300"}`}
             value={title}
             onChange={handleTitleChange}
             placeholder="e.g. Drink Water"
           />
-          {/* Display error for title */}
           {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
         </div>
 
@@ -188,7 +199,6 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
             </div>
           )}
 
-          {/* Display repeat error */}
           {repeatError && <p className="text-red-500 text-xs mt-2">{repeatError}</p>}
         </div>
 

@@ -1,5 +1,7 @@
-// Mobile: single horizontal row with scroll; Desktop: centered wrap
+"use client"
+import { useState, useEffect } from "react";
 
+// Define the types for DayState and Day
 type DayState = "past" | "logged" | "future";
 
 type Day = {
@@ -19,18 +21,43 @@ const colorByDOW: Record<Day["dow"], string> = {
   Sun: "bg-[var(--color-green)]",
 };
 
-// Static sample sequence matching the screenshot
-const days: Day[] = [
-  { day: 8, dow: "Mon", state: "past" },
-  { day: 9, dow: "Tue", state: "logged"},
-  { day: 10, dow: "Wed", state: "logged" },
-  { day: 11, dow: "Thu", state: "logged"},
-  { day: 12, dow: "Fri" , state: "logged"},
-  { day: 13, dow: "Sat", state: "future" },
-  { day: 14, dow: "Sun", state: "future" },
-];
-
 export default function CalendarStrip() {
+  const [days, setDays] = useState<Day[]>([]);
+
+  useEffect(() => {
+    // Get current date and calculate the start of the week (Monday)
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay; // Adjust for Sunday (0) to Monday (-6)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() + diffToMonday); // Set the date to the previous Monday
+
+    // Generate the days of the week from Monday to Sunday
+    const weekDays: Day[] = [];
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
+
+      // Get the day of the week and the day number
+      const dayOfWeek: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i];
+      const dayOfMonth = currentDate.getDate();
+
+      // Determine the state (past, logged, future)
+      let state: DayState;
+      if (currentDate < today) {
+        state = "past";
+      } else if (currentDate.getDate() === today.getDate()) {
+        state = "logged"; // Assuming logged is for today
+      } else {
+        state = "future";
+      }
+
+      weekDays.push({ day: dayOfMonth, dow: dayOfWeek, state });
+    }
+
+    setDays(weekDays);
+  }, []); // Empty dependency array to run only on mount
+
   // Map state → image filename
   const imageByState: Record<DayState, string> = {
     past: "Sad.png",
@@ -41,7 +68,12 @@ export default function CalendarStrip() {
   return (
     <div className="no-scrollbar flex gap-3 overflow-x-auto md:overflow-visible md:flex-wrap md:justify-center md:gap-4">
       {days.map((d) => {
-        const stateClass = d.state === "past" ? "past" : d.state === "future" ? "future" : "";
+        const stateClass =
+          d.state === "past"
+            ? "past"
+            : d.state === "future"
+            ? "future"
+            : "";
         const base =
           d.state === "future"
             ? "bg-gray-100" // gray for future
@@ -64,11 +96,11 @@ export default function CalendarStrip() {
               .join(" ")}
             style={{ boxShadow: "none", border: "none", overflow: "visible" }} // make overflow visible
           >
-          {/*day + dow*/}
-          <div className="flex flex-col items-center md:-translate-y-4.5">
-            <div className="text-4xl md:text-5xl font-header">{d.day}</div>
-            <div className="dow text-base md:text-lg">{d.dow}</div>
-          </div>
+            {/* Day + DOW */}
+            <div className="flex flex-col items-center md:-translate-y-4.5">
+              <div className="text-4xl md:text-5xl font-header">{d.day}</div>
+              <div className="dow text-base md:text-lg">{d.dow}</div>
+            </div>
 
             {/* Bunny image overlay — absolutely positioned so it overlaps bottom */}
             {d.state && (

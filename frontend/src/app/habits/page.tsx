@@ -6,8 +6,8 @@ import { useState, useEffect } from "react";
 import type { Habit } from "@/types";
 import { PlusIcon, PencilIcon, TrashIcon } from "@/components/Icons";
 import CreateHabitModal from "@/components/CreateHabitModal";
+import EditHabitModal from "@/components/EditHabitModal";
 
-// Simulate server data fetch (DB, file, or API). This runs on the server only.
 async function getInitialHabits(): Promise<Habit[]> {
   return [
     { id: "1", title: "Go to the gym", icon: "💪", done: true, repeat: { type: "daily" } },
@@ -21,8 +21,10 @@ async function getInitialHabits(): Promise<Habit[]> {
 export default function HabitsPage() {
   const { habits, setAll, add, remove, update } = useHabitStore();
   const [deleteMode, setDeleteMode] = useState(false);
-  const [openCreate, setOpenCreate] = useState(false);
-  const [editMode, setEditMode] = useState(false); // Track if in edit mode
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
 
   useEffect(() => {
     async function loadHabits() {
@@ -32,15 +34,26 @@ export default function HabitsPage() {
     loadHabits();
   }, []);
 
-  // Handle creating a new habit
+  // Create
   function handleCreate(habit: Habit) {
     add(habit);
-    setOpenCreate(false);
+    setIsModalOpen(false);
   }
 
-  // Handle editing a habit
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Edit
   function handleEdit(habit: Habit) {
-    setOpenCreate(true); // Open the modal in edit mode
+    setHabitToEdit(habit);
+    setOpenEdit(true);
+  }
+
+  // Save edit
+  function handleUpdateHabit(updatedHabit: Habit) {
+    update(updatedHabit.id, updatedHabit);
+    setOpenEdit(false);
   }
 
   return (
@@ -55,22 +68,22 @@ export default function HabitsPage() {
             {/* Create button */}
             <button
               aria-label="Create Habit"
-              onClick={() => setOpenCreate(true)}
+              onClick={() => setIsModalOpen(true)}
               className="p-2 rounded-full bg-gray-100 hover:bg-[#50E59F] hover:text-white transform transition-transform duration-150 hover:scale-110"
             >
               <PlusIcon />
             </button>
 
-            {/* Toggle Edit Mode */}
+            {/* Edit mode */}
             <button
               aria-label="Edit Habit"
-              onClick={() => setEditMode(!editMode)} // Toggle edit mode
+              onClick={() => setEditMode(!editMode)}
               className={`p-2 rounded-full ${editMode ? 'bg-[#28A5FF] text-white' : 'bg-gray-100 hover:bg-[#28A5FF] hover:text-white'} transform transition-transform duration-150 hover:scale-110`}
             >
               <PencilIcon />
             </button>
 
-            {/* Delete button */}
+            {/* Delete mode */}
             <button
               aria-label="Delete Habit"
               onClick={() => setDeleteMode(!deleteMode)}
@@ -85,59 +98,49 @@ export default function HabitsPage() {
         {/* Habits list */}
         <div className="divide-y divide-gray-200">
           {habits.map((h) => (
-          <div
-            key={h.id}
-            className="flex items-center justify-between p-3 gap-3 relative"
-          >
+            <div key={h.id} className="flex items-center justify-between p-3 gap-3 relative">
+              <div className="flex items-center gap-3 flex-grow">
+                {deleteMode && (
+                  <button
+                    className="text-gray-400 hover:text-[#FF4DA1] transition p-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      remove(h.id);
+                    }}
+                  >
+                    <TrashIcon />
+                  </button>
+                )}
 
-          <div className="flex items-center gap-3 flex-grow">
-            {/* Delete button for delete mode */}
-            {deleteMode && (
-              <button
-                className="text-gray-400 hover:text-[#FF4DA1] transition p-2"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent the click from affecting the entire row
-                  remove(h.id); // Perform delete
-                }}
-                // Make sure hover effect is only triggered when hovering the icon
-                style={{ pointerEvents: "all" }}
-              >
-                <TrashIcon />
-              </button>
-            )}
+                <span className="text-lg">{h.icon}</span>
+                <span>{h.title}</span>
+                <span className="text-sm text-neutral-500">
+                  {h.repeat.type === "weekly" && h.repeat.daysOfWeek
+                    ? `Weekly on ${h.repeat.daysOfWeek.map((d) => ["S", "M", "T", "W", "T", "F", "S"][d]).join(", ")}`
+                    : h.repeat.type === "everyN"
+                    ? `Every ${h.repeat.interval} day(s)`
+                    : "Daily"}
+                </span>
+              </div>
 
-              <span className="text-lg">{h.icon}</span>
-              <span>{h.title}</span>
-              <span className="text-sm text-neutral-500">
-                {h.repeat.type === "weekly" && h.repeat.daysOfWeek
-                  ? `Weekly on ${h.repeat.daysOfWeek.map((d) => ["S", "M", "T", "W", "T", "F", "S"][d]).join(", ")}` 
-                  : h.repeat.type === "everyN"
-                  ? `Every ${h.repeat.interval} day(s)`
-                  : "Daily"}
-              </span>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="checkbox"
+                  checked={h.done}
+                  onChange={() => update(h.id, { ...h, done: !h.done })}
+                  className="size-5 rounded border-neutral-300 accent-[#192752]"
+                />
+
+                {editMode && (
+                  <button
+                    onClick={() => handleEdit(h)}
+                    className="ml-4 p-2 text-gray-400 hover:text-[#28A5FF] transition"
+                  >
+                    <PencilIcon />
+                  </button>
+                )}
+              </div>
             </div>
-
-            <div className="flex items-center space-x-4">
-              {/* Checkbox for completing the habit */}
-              <input
-                type="checkbox"
-                checked={h.done}
-                onChange={() => update(h.id, { ...h, done: !h.done })}
-                className="size-5 rounded border-neutral-300 accent-[#192752]"
-              />
-
-              {/* In edit mode, show pencil icon */}
-              {editMode && (
-                <button
-                  onClick={() => handleEdit(h)} // Open the modal for editing the habit
-                  className="ml-4 p-2 text-gray-400 hover:text-[#28A5FF] transition"
-                >
-                  <PencilIcon />
-                </button>
-              )}
-            </div>
-          </div>
-
           ))}
         </div>
       </section>
@@ -145,12 +148,17 @@ export default function HabitsPage() {
       <MobileNav active="habits" />
       <div className="h-16 md:hidden" />
 
-      {/* Create/Edit Habit Modal */}
-      <CreateHabitModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onSave={handleCreate}
-      />
+      {/* Modals */}
+      <CreateHabitModal open={isModalOpen} onClose={handleCloseModal} onSave={handleCreate} />;
+
+      {habitToEdit && (
+        <EditHabitModal
+          open={openEdit}
+          habit={habitToEdit}
+          onClose={() => setOpenEdit(false)} // This will close the edit modal
+          onSave={handleUpdateHabit}
+        />
+      )}
     </main>
   );
 }
