@@ -15,6 +15,11 @@ async function getInitialHabits(): Promise<Habit[]> {
     { id: "3", title: "Feed cat", icon: "🐱", done: false, repeat: { type: "daily" } },
     { id: "4", title: "Default habit", icon: "💡", done: false, repeat: { type: "weekly", daysOfWeek: [1, 3, 5] } },
     { id: "5", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
+    { id: "6", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
+    { id: "7", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
+    { id: "8", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
+    { id: "9", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
+    { id: "10", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
   ];
 }
 
@@ -123,12 +128,19 @@ export default function HabitsPage() {
                 </span>
               </div>
 
-              <div className="flex items-center space-x-4">
+              {/* Checkbox */}
+              <div className="relative flex items-center justify-center">
+                <span
+                  className="absolute inset-0 bg-[#192752] rounded-full opacity-0 scale-0
+                    peer-checked:opacity-20 peer-checked:scale-[2]
+                    transition-all duration-300 ease-out -z-10"
+                ></span>
+
                 <input
                   type="checkbox"
                   checked={h.done}
                   onChange={() => update(h.id, { ...h, done: !h.done })}
-                  className="size-5 rounded border-neutral-300 accent-[#192752]"
+                  className="peer size-5 rounded border-neutral-300 accent-[#192752] transition-transform duration-150 ease-in-out hover:scale-110"
                 />
 
                 {editMode && (
