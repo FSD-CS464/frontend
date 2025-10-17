@@ -1,5 +1,4 @@
 "use client";
-
 import TopNav from "@/components/TopNav";
 import PetWindow from "@/components/PetWindow";
 import { useState, useEffect } from "react";
