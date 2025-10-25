@@ -11,7 +11,7 @@
 
   /* Semantic aliases */
   --color-brand: var(--color-blue);
-  --color-surface: white;
+  --color-wallpaper: #FDFDFD;
   --color-muted: #737373;
 }
 
@@ -29,7 +29,8 @@
 :root { color-scheme: light; }
 html, body { height: 100%; }
 body {
-  @apply bg-white antialiased;
+  background-color: var(--color-wallpaper);
+  @apply antialiased;
   color: #192752;
 }
 

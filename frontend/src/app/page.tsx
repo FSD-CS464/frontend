@@ -1,3 +1,6 @@
+"use client"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import TopNav from "@/components/TopNav";
 import CalendarStrip from "@/components/CalendarStrip";
 import StreakCard from "@/components/StreakCard";
@@ -24,9 +27,32 @@ async function getInitialHabits(): Promise<Habit[]> {
   ];
 }
 
-export default async function Page() {
-  const habits = await getInitialHabits();
+export default function Page() {
+  const router = useRouter();
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // check login
+    const loggedIn = localStorage.getItem("loggedIn");
+    if (!loggedIn) {
+      router.replace("/login");
+      return;
+    }
+
+  getInitialHabits()
+    .then((data) => setHabits(data))
+    .finally(() => setLoading(false)); // <-- ensures loading stops
+  }, [router]);
+
+  if (loading) {
+    return (
+      <main className="flex items-center justify-center min-h-screen">
+        <p className="text-lg text-gray-500">Loading habits...</p>
+      </main>
+    );
+  }
+  
   return (
     <main className="pb-16 md:pb-6">
       <TopNav />
@@ -106,8 +132,3 @@ export default async function Page() {
   );
 }
 
-// update
-export const metadata = {
-  title: "My Next.js App",
-  manifest: "/manifest.json",
-};
