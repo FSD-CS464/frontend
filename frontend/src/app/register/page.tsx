@@ -27,7 +27,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#28a5ff] px-4">
+    <main className="min-h-screen flex items-center justify-center bg-[var(--color-blue)] px-4">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="w-full max-w-sm rounded-2xl bg-white p-6">
         <h1 className="text-3xl font-header text-[#192752] mb-4 text-center">

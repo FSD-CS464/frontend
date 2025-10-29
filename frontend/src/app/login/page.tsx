@@ -20,7 +20,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 relative"
       style={{
-        backgroundColor: "#28a5ff",
+        backgroundColor: "--color-blue",
         backgroundImage: "url('/bg.svg')",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",

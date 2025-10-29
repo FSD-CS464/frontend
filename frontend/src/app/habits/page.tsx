@@ -74,7 +74,7 @@ export default function HabitsPage() {
             <button
               aria-label="Create Habit"
               onClick={() => setIsModalOpen(true)}
-              className="p-2 rounded-full bg-gray-100 hover:bg-[#50E59F] hover:text-white transform transition-transform duration-150 hover:scale-110"
+              className="p-2 rounded-full bg-gray-100 hover:bg-[var(--color-green)] hover:text-white transform transition-transform duration-150 hover:scale-110"
             >
               <PlusIcon />
             </button>
@@ -83,7 +83,7 @@ export default function HabitsPage() {
             <button
               aria-label="Edit Habit"
               onClick={() => setEditMode(!editMode)}
-              className={`p-2 rounded-full ${editMode ? 'bg-[#28A5FF] text-white' : 'bg-gray-100 hover:bg-[#28A5FF] hover:text-white'} transform transition-transform duration-150 hover:scale-110`}
+              className={`p-2 rounded-full ${editMode ? 'bg-[var(--color-blue)] text-white' : 'bg-gray-100 hover:bg-[var(--color-blue)] hover:text-white'} transform transition-transform duration-150 hover:scale-110`}
             >
               <PencilIcon />
             </button>
@@ -93,7 +93,7 @@ export default function HabitsPage() {
               aria-label="Delete Habit"
               onClick={() => setDeleteMode(!deleteMode)}
               className={`p-2 rounded-full transform transition-transform duration-150 hover:scale-110 
-                ${deleteMode ? "bg-[#FF4DA1] text-white" : "bg-gray-100 hover:bg-[#FF4DA1] hover:text-white"}`}
+                ${deleteMode ? "bg-[var(--color-pink)] text-white" : "bg-gray-100 hover:bg-[var(--color-pink)] hover:text-white"}`}
             >
               <TrashIcon />
             </button>
@@ -107,7 +107,7 @@ export default function HabitsPage() {
               <div className="flex items-center gap-3 flex-grow">
                 {deleteMode && (
                   <button
-                    className="text-gray-400 hover:text-[#FF4DA1] transition p-2"
+                    className="text-gray-400 hover:text-[var(--color-pink)] transition p-2"
                     onClick={(e) => {
                       e.stopPropagation();
                       remove(h.id);
@@ -146,7 +146,7 @@ export default function HabitsPage() {
                 {editMode && (
                   <button
                     onClick={() => handleEdit(h)}
-                    className="ml-4 p-2 text-gray-400 hover:text-[#28A5FF] transition"
+                    className="ml-4 p-2 text-gray-400 hover:text-[var(--color-blue)] transition"
                   >
                     <PencilIcon />
                   </button>

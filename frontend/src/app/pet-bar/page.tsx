@@ -90,7 +90,7 @@ export default function PetBarPage() {
 
           <button
             onClick={handlePlayGames}
-            className="px-4 py-2 rounded-lg bg-[#FF4DA1] hover:bg-pink-500 font-semibold transform transition-all duration-200 active:scale-95"
+            className="px-4 py-2 rounded-lg bg-[var(--color-pink)] hover:bg-pink-500 font-semibold transform transition-all duration-200 active:scale-95"
           >
             Play games
           </button>

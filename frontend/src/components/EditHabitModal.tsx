@@ -27,7 +27,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
   useEffect(() => {
     if (habit) {
       setTitle(habit.title);
-      setIcon(habit.icon); // Ensure icon is set properly from the passed habit
+      setIcon(habit.icon);
       setRepeatType(habit.repeat.type);
       if (habit.repeat.type === "weekly") {
         setDaysOfWeek(habit.repeat.daysOfWeek || []);
@@ -46,7 +46,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
   const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
     if (e.target.value.trim()) {
-      setError(""); // Remove error if title is valid
+      setError("");
     }
   }, []);
 
@@ -81,7 +81,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
     const updatedHabit: Habit = {
       id: habit?.id || crypto.randomUUID(), // Keep existing habit ID if editing
       title,
-      icon, // Ensure icon is included in the saved habit
+      icon,
       done: habit?.done || false,
       repeat,
     };
@@ -204,7 +204,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
 
         <button
           onClick={handleSave}
-          className="w-full bg-[#28a5ff] hover:bg-[#188de0] text-white font-medium py-2 rounded-lg transform transition-all duration-200 active:scale-95"
+          className="w-full bg-[var(--color-blue)] hover:bg-[#188de0] text-white font-medium py-2 rounded-lg transform transition-all duration-200 active:scale-95"
         >
           Save Habit
         </button>

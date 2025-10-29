@@ -1,7 +1,7 @@
 export default function StreakCard() {
   return (
     <aside className="relative w-full sm:w-80 rounded-2xl overflow-hidden bg-[var(--color-blue)] text-white p-5">
-      {/* Fire image in the bottom-right corner, cropped by overflow-hidden */}
+      {/* Fire */}
       <img
         src="/icons/fire.png"
         alt="fire"

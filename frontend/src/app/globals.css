@@ -1,15 +1,14 @@
 @import "tailwindcss";
 
-/* Color tokens from your style guide */
+/* Brand colors */
 @theme {
-  --color-lemonyellow: #F7F052; /* 9 Tue */
-  --color-pink: #FF4DA1;        /* streak card flame accent */
-  --color-orange: #FFA953;      /* flame bg */
-  --color-blue: #28A5FF;        /* 10 Wed / highlight */
-  --color-green: #50E59F;       /* 11 Thu */
-  --color-gray-100: #F4F4F4;    /* calendar dim */
+  --color-lemonyellow: #F7F052; 
+  --color-pink: #FF4DA1;
+  --color-orange: #FFA953;
+  --color-blue: #28A5FF;
+  --color-green: #50E59F;
+  --color-gray-100: #F4F4F4;
 
-  /* Semantic aliases */
   --color-brand: var(--color-blue);
   --color-wallpaper: #FDFDFD;
   --color-muted: #737373;

@@ -16,7 +16,7 @@ export default function ProgressBlock() {
       {/* Progress bar */}
       <div className="mt-3 h-3 w-full bg-neutral-100 rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#50E59F] transition-all duration-500 ease-in-out"
+          className="h-full bg-[var(--color-green)] transition-all duration-500 ease-in-out"
           style={{ width: `${percent}%` }}
         ></div>
       </div>

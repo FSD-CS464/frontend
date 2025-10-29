@@ -58,7 +58,7 @@ export default function CalendarStrip() {
     setDays(weekDays);
   }, []); // Empty dependency array to run only on mount
 
-  // Map state → image filename
+  // State -> image
   const imageByState: Record<DayState, string> = {
     past: "Sad.png",
     logged: "Happy.png",
@@ -108,6 +108,7 @@ export default function CalendarStrip() {
                 src={`/bunnies/${imageByState[d.state]}`}
                 alt={d.state}
                 className="absolute -bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/3 w-9 h-10 md:w-12 md:h-14"
+                draggable={false}
               />
             )}
           </div>

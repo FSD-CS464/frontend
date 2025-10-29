@@ -42,7 +42,7 @@ export default function Page() {
 
   getInitialHabits()
     .then((data) => setHabits(data))
-    .finally(() => setLoading(false)); // <-- ensures loading stops
+    .finally(() => setLoading(false));
   }, [router]);
 
   if (loading) {

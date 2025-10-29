@@ -10,7 +10,7 @@ const PetEnergyBar: React.FC<PetEnergyBarProps> = ({ energy }) => {
       <div className="text-sm font-semibold text-[#192752]">Pet's Energy</div>
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#28a5ff] transition-all duration-500 ease-in-out"
+          className="h-full bg-[var(--color-blue)] transition-all duration-500 ease-in-out"
           style={{ width: `${energy}%` }}
         ></div>
       </div>

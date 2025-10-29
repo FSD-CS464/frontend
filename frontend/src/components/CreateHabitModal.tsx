@@ -87,7 +87,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-header">Create New Habit</h2>
-          {/* Close Icon Next to Title */}
+          {/* X */}
           <button
             className="p-2 text-gray-500"
             onClick={onClose}
@@ -194,7 +194,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
 
         <button
           onClick={handleSave}
-          className="w-full bg-[#28a5ff] hover:bg-[#188de0] text-white font-medium py-2 rounded-lg transform transition-all duration-200 active:scale-95"
+          className="w-full bg-[var(--color-blue)] hover:bg-[#188de0] text-white font-medium py-2 rounded-lg transform transition-all duration-200 active:scale-95"
         >
           Save Habit
         </button>

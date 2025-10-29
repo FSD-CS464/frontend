@@ -97,8 +97,8 @@ export default function PetWindow({
         style={{
             transform:
             animation === "sleep"
-                ? "translate(14px, 10px)" // sleep nudged up a bit
-                : "translate(14px, 30px)", // default position
+                ? "translate(14px, 10px)"
+                : "translate(14px, 30px)",
       }}
       />
 
