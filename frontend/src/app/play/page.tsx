@@ -12,14 +12,18 @@ const GODOT_GAME_PATH = "/godot-fsd.html";
 export default function PlayPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch user ID from backend
-    api
-      .get("/auth/me")
-      .then((res) => {
-        setCurrentUserId(res.data.id);
+    // Fetch user ID and access token
+    Promise.all([
+      api.get("/auth/me").then((res) => res.data.id),
+      api.get("/auth/token").then((res) => res.data.access_token),
+    ])
+      .then(([userId, token]) => {
+        setCurrentUserId(userId);
+        setAccessToken(token);
       })
       .catch((err) => {
         console.error("Failed to fetch user:", err);
@@ -30,7 +34,7 @@ export default function PlayPage() {
   }, []);
 
   useEffect(() => {
-    if (!currentUserId || !iframeRef.current) {
+    if (!currentUserId || !accessToken || !iframeRef.current) {
       return;
     }
 
@@ -39,22 +43,19 @@ export default function PlayPage() {
       const iframeElement = iframeRef.current;
       
       if (iframeWindow && iframeElement) {
-        console.log("Iframe loaded, sending UID...");
-        
         const targetOrigin = GODOT_GAME_ORIGIN;
-        console.log("Sending postMessage to origin:", targetOrigin);
 
         try {
-          // Send the UID via postMessage
+          // Send the UID and JWT token via postMessage
           iframeWindow.postMessage(
             {
               type: "AUTH_INIT",
               uid: currentUserId,
+              access_token: accessToken,
               senderOrigin: NEXTJS_APP_ORIGIN,
             },
             targetOrigin
           );
-          console.log("postMessage sent successfully to", targetOrigin);
         } catch (error) {
           console.error("Error sending postMessage:", error);
         }
@@ -75,7 +76,7 @@ export default function PlayPage() {
         iframe.removeEventListener("load", handleLoad);
       }
     };
-  }, [currentUserId]);
+  }, [currentUserId, accessToken]);
 
   if (loading) {
     return (
