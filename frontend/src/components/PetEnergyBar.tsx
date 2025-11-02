@@ -1,10 +1,10 @@
+"use client";
 import React from "react";
+import { useHabitStore } from "@/store/habits";
 
-interface PetEnergyBarProps {
-  energy: number; // Energy level, from 0 to 100
-}
+export default function PetEnergyBar() {
+  const energy = useHabitStore((s) => s.energy);
 
-const PetEnergyBar: React.FC<PetEnergyBarProps> = ({ energy }) => {
   return (
     <div className="card p-4 bg-white shadow-lg rounded-lg flex flex-col justify-center items-center space-y-2">
       <div className="text-sm font-semibold text-[#192752]">Pet's Energy</div>
@@ -17,6 +17,4 @@ const PetEnergyBar: React.FC<PetEnergyBarProps> = ({ energy }) => {
       <div className="text-xs text-gray-500 mt-1">{energy}% Energy</div>
     </div>
   );
-};
-
-export default PetEnergyBar;
+}

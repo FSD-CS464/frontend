@@ -3,13 +3,19 @@ import { useEffect } from "react";
 import { useHabitStore } from "@/store/habits";
 import type { Habit } from "@/types";
 
-export default function HabitsList({ initial }: { initial: Habit[] }) {
+interface HabitsListProps {
+  initial?: Habit[];
+}
+
+export default function HabitsList({ initial }: HabitsListProps) {
   const { habits, setAll, toggle } = useHabitStore();
 
   useEffect(() => {
-    setAll(initial);
+    if (initial && initial.length > 0) {
+      setAll(initial);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initial]);
 
   return (
     <div

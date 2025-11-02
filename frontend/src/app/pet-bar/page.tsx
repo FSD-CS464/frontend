@@ -1,36 +1,36 @@
 "use client";
 import TopNav from "@/components/TopNav";
 import PetWindow from "@/components/PetWindow";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MobileNav from "@/components/MobileNav";
 import PetEnergyBar from "@/components/PetEnergyBar";
+import { useHabitStore } from "@/store/habits";
 
 export default function PetBarPage() {
-  const [isSleeping, setIsSleeping] = useState(false);
-  const [energy, setEnergy] = useState(80);
   const router = useRouter();
 
-  // Restore energy while sleeping
+  const {
+    isSleeping,
+    energy,
+    mood,
+    setEnergy,
+    toggleSleep,
+    setMood,
+  } = useHabitStore();
+
   useEffect(() => {
     let restore: NodeJS.Timeout | null = null;
     if (isSleeping) {
       restore = setInterval(() => {
-        setEnergy((e) => {
-          if (e >= 100) {
-            clearInterval(restore!);
-            return 100;
-          }
-          return e + 2;
-        });
+        setEnergy((e) => Math.min(100, e + 2));
       }, 1000);
     }
     return () => {
       if (restore) clearInterval(restore);
     };
-  }, [isSleeping]);
+  }, [isSleeping, setEnergy]);
 
-  // Passive energy drain
   useEffect(() => {
     let drain: NodeJS.Timeout | null = null;
     if (!isSleeping) {
@@ -41,16 +41,19 @@ export default function PetBarPage() {
     return () => {
       if (drain) clearInterval(drain);
     };
-  }, [isSleeping]);
+  }, [isSleeping, setEnergy]);
 
-  const handleSleep = () => setIsSleeping((prev) => !prev);
+  useEffect(() => {
+    if (isSleeping) {
+      setMood("sleeping");
+    } else if (energy < 30) {
+      setMood("sad");
+    } else {
+      setMood("idle");
+    }
+  }, [isSleeping, energy, setMood]);
+
   const handlePlayGames = () => router.push("/play");
-
-  // Wake by clicking pet
-  const handlePetClick = () => setIsSleeping(false);
-
-  const mood =
-    isSleeping ? "sleeping" : energy < 30 ? "sad" : "idle";
 
   return (
     <main className="pb-16 md:pb-6">
@@ -59,26 +62,22 @@ export default function PetBarPage() {
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-4xl font-header text-center">Pet Bar</h1>
 
+        {/* pet window */}
         <div className="mt-4 flex justify-center">
           <div className="w-[400px] sm:w-[400px]">
-            <PetWindow
-              isSleeping={isSleeping}
-              energy={energy}
-              mood={mood}
-              onPetClick={handlePetClick}
-            />
+            <PetWindow />
           </div>
         </div>
 
-        
-        {/* Pet energy bar */}
+        {/* energy bar */}
         <div className="mt-6 w-full max-w-sm mx-auto">
-          <PetEnergyBar energy={energy} />
+          <PetEnergyBar />
         </div>
 
+        {/* buttons */}
         <div className="mt-6 flex justify-center gap-4">
           <button
-            onClick={handleSleep}
+            onClick={toggleSleep}
             className={`px-4 py-2 rounded-lg font-semibold transform transition-all duration-200 active:scale-95 ${
               isSleeping
                 ? "bg-gray-300 hover:bg-gray-400"
@@ -96,7 +95,7 @@ export default function PetBarPage() {
           </button>
         </div>
       </section>
-      
+
       <MobileNav active="pet" />
       <div className="h-16 md:hidden" />
     </main>

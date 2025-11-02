@@ -9,6 +9,7 @@ import MobileNav from "@/components/MobileNav";
 import PetWindow from "@/components/PetWindow";
 import PetEnergyBar from "@/components/PetEnergyBar";
 import type { Habit } from "@/types";
+import { useHabitStore } from "@/store/habits";
 
 // still mock for now
 async function getInitialHabits(): Promise<Habit[]> {
@@ -27,14 +28,30 @@ async function getInitialHabits(): Promise<Habit[]> {
 }
 
 export default function Page() {
-  const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+  const habitsCount = useHabitStore((s) => s.habits.length);
+  const setAll = useHabitStore((s) => s.setAll);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    getInitialHabits()
-      .then((data) => setHabits(data))
-      .finally(() => setLoading(false));
+    const unsub = useHabitStore.persist.onFinishHydration(() => setHydrated(true));
+    setHydrated(true);
+    return unsub;
   }, []);
+
+  useEffect(() => {
+    if (hydrated) {
+      if (habitsCount === 0) {
+        (async () => {
+          const data = await getInitialHabits();
+          setAll(data);
+          setLoading(false);
+        })();
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [hydrated, habitsCount, setAll]);
 
   if (loading) {
     return (
@@ -66,7 +83,7 @@ export default function Page() {
         <div className="mt-10 md:hidden">
           <div className="text-2xl font-header">Finished these today?</div>
           <div className="mt-3">
-            <HabitsList initial={habits} />
+            <HabitsList />
           </div>
         </div>
 
@@ -82,17 +99,18 @@ export default function Page() {
                   >
                     Pet Bar →
                   </a>
-                  <PetWindow isSleeping={false} energy={80} mood="idle" />
+                  {/* ⬇️ These now pull from Zustand store directly */}
+                  <PetWindow />
                 </div>
                 <div className="w-full">
-                  <PetEnergyBar energy={80} />
+                  <PetEnergyBar />
                 </div>
               </div>
 
               <div>
                 <div className="text-2xl font-header">Finished these today?</div>
                 <div className="mt-3">
-                  <HabitsList initial={habits} />
+                  <HabitsList />
                 </div>
               </div>
             </div>

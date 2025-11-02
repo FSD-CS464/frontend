@@ -35,7 +35,7 @@ export default function LoginPage() {
     <main
       className="min-h-screen flex flex-col items-center justify-center px-4 relative"
       style={{
-        backgroundColor: "--color-blue",
+        backgroundColor: "var(--color-blue)",
         backgroundImage: "url('/bg.svg')",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",

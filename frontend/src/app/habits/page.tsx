@@ -30,14 +30,29 @@ export default function HabitsPage() {
   const [editMode, setEditMode] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
+  const [loading, setLoading] = useState(true);
+  const habitsCount = useHabitStore((s) => s.habits.length);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    async function loadHabits() {
-      const initialHabits = await getInitialHabits();
-      setAll(initialHabits);
-    }
-    loadHabits();
+    const unsub = useHabitStore.persist.onFinishHydration(() => setHydrated(true));
+    setHydrated(true);
+    return unsub;
   }, []);
+
+  useEffect(() => {
+    if (hydrated) {
+      if (habitsCount === 0) {
+        (async () => {
+          const data = await getInitialHabits();
+          setAll(data);
+          setLoading(false);
+        })();
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [hydrated, habitsCount, setAll]);
 
   // Create
   function handleCreate(habit: Habit) {
@@ -118,7 +133,9 @@ export default function HabitsPage() {
                 )}
 
                 <span className="text-lg">{h.icon}</span>
-                <span>{h.title}</span>
+                <span className={`${h.done ? "line-through text-gray-400" : ""}`}>
+                  {h.title}
+                </span>
                 <span className="text-sm text-neutral-500">
                   {h.repeat.type === "weekly" && h.repeat.daysOfWeek
                     ? `Weekly on ${h.repeat.daysOfWeek.map((d) => ["S", "M", "T", "W", "T", "F", "S"][d]).join(", ")}`

@@ -1,8 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useHabitStore } from "@/store/habits";
 
 type Animation =
   | "neutralIdle"
@@ -11,21 +11,13 @@ type Animation =
   | "sleep"
   | "sadIdle";
 
-export default function PetWindow({
-  isSleeping,
-  energy,
-  mood,
-  onPetClick,
-}: {
-  isSleeping: boolean;
-  energy: number;
-  mood: "idle" | "sad" | "sleeping";
-  onPetClick?: () => void;
-}) {
+export default function PetWindow() {
+  const { energy, isSleeping, mood, toggleSleep } = useHabitStore();
+
   const [animation, setAnimation] = useState<Animation>("neutralIdle");
   const [isDay, setIsDay] = useState(true);
 
-  // background switch day/night
+  // 🌞 day and night
   useEffect(() => {
     const updateTime = () => {
       const hour = new Date().getHours();
@@ -36,23 +28,11 @@ export default function PetWindow({
     return () => clearInterval(timer);
   }, []);
 
-  // update animation based on mood
   useEffect(() => {
-    if (mood === "sleeping") setAnimation("sleep");
-    else if (mood === "sad") setAnimation("sadIdle");
-    else setAnimation("neutralIdle");
-  }, [mood]);
-
-  useEffect(() => {
-    if (isSleeping) {
-      setAnimation("sleep");
-    } else if (energy < 30) {
-      setAnimation("sadIdle");
-    } else if (energy < 70) {
-      setAnimation("neutralIdle");
-    } else {
-      setAnimation("happyIdle");
-    }
+    if (isSleeping) setAnimation("sleep");
+    else if (energy < 30) setAnimation("sadIdle");
+    else if (energy < 70) setAnimation("neutralIdle");
+    else setAnimation("happyIdle");
   }, [isSleeping, energy]);
 
   const backgroundSrc = isDay
@@ -78,7 +58,7 @@ export default function PetWindow({
       className="relative w-full aspect-square rounded-xl overflow-hidden border border-neutral-200 bg-neutral-100 select-none"
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* Background */}
+
       <Image
         src={backgroundSrc}
         alt="background"
@@ -87,7 +67,6 @@ export default function PetWindow({
         draggable={false}
       />
 
-      {/* Pet */}
       <motion.img
         key={animation}
         src={animations[animation]}
@@ -95,35 +74,34 @@ export default function PetWindow({
         draggable={false}
         className="absolute w-full h-full object-contain z-20 select-none pointer-events-none"
         style={{
-            transform:
+          transform:
             animation === "sleep"
-                ? "translate(14px, 10px)"
-                : "translate(14px, 30px)",
-      }}
+              ? "translate(14px, 10px)"
+              : "translate(14px, 30px)",
+        }}
       />
 
-     {/* Click zone */}
-    <motion.button
-    className="absolute z-30 cursor-pointer"
-    style={{
-        top: "40%",
-        left: "25%",
-        width: "50%",
-        height: "50%",
-        background: "transparent",
-    }}
-    whileTap={{ scale: 0.97 }}
-    onPointerDown={() => {
-        if (isSleeping) {
-        onPetClick?.(); // wake up
-        setAnimation("happyIdle");
-        setTimeout(resetToEnergyMood, 1000);
-        } else {
-        setAnimation("happy2Idle"); // pet reaction
-        setTimeout(resetToEnergyMood, 1000);
-        }
-    }}
-    />
+      <motion.button
+        className="absolute z-30 cursor-pointer"
+        style={{
+          top: "40%",
+          left: "25%",
+          width: "50%",
+          height: "50%",
+          background: "transparent",
+        }}
+        whileTap={{ scale: 0.97 }}
+        onPointerDown={() => {
+          if (isSleeping) {
+            toggleSleep(); // wake up globally
+            setAnimation("happyIdle");
+            setTimeout(resetToEnergyMood, 1000);
+          } else {
+            setAnimation("happy2Idle"); // playful reaction
+            setTimeout(resetToEnergyMood, 1000);
+          }
+        }}
+      />
     </div>
   );
 }
