@@ -26,25 +26,20 @@ function getGreeting(): string {
     }
 }
 
-// still mock for now
-async function getInitialHabits(): Promise<Habit[]> {
-    return [
-        { id: "1", title: "Go to the gym", icon: "💪", done: true, repeat: { type: "daily" } },
-        { id: "2", title: "Read novel", icon: "📚", done: false, repeat: { type: "daily" } },
-        { id: "3", title: "Feed cat", icon: "🐱", done: false, repeat: { type: "daily" } },
-        { id: "4", title: "Default habit", icon: "💡", done: false, repeat: { type: "weekly", daysOfWeek: [1, 3, 5] } },
-        { id: "5", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-        { id: "6", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-        { id: "7", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-        { id: "8", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-        { id: "9", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-        { id: "10", title: "Default habit", icon: "💡", done: false, repeat: { type: "everyN", interval: 2 } },
-    ];
+// Fetch habits from API
+async function fetchHabitsFromAPI(): Promise<Habit[]> {
+    try {
+        const res = await api.get("/habits");
+        const habits: Habit[] = res.data.data || [];
+        return habits;
+    } catch (error) {
+        console.error("Failed to fetch habits:", error);
+        return [];
+    }
 }
 
 export default function Page() {
     const [loading, setLoading] = useState(true);
-    const habitsCount = useHabitStore((s) => s.habits.length);
     const setAll = useHabitStore((s) => s.setAll);
     const [hydrated, setHydrated] = useState(false);
     const [user, setUser] = useState<{ display_name: string } | null>(null);
@@ -77,17 +72,20 @@ export default function Page() {
 
     useEffect(() => {
         if (hydrated) {
-            if (habitsCount === 0) {
-                (async () => {
-                    const data = await getInitialHabits();
-                    setAll(data);
+            (async () => {
+                try {
+                    const data = await fetchHabitsFromAPI();
+                    if (data.length > 0) {
+                        setAll(data);
+                    }
                     setLoading(false);
-                })();
-            } else {
-                setLoading(false);
-            }
+                } catch (error) {
+                    console.error("Error loading habits:", error);
+                    setLoading(false);
+                }
+            })();
         }
-    }, [hydrated, habitsCount, setAll]);
+    }, [hydrated, setAll]);
 
     if (loading) {
         return (

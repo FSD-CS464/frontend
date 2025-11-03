@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import type { Habit, Repeat } from "@/types";
+import type { Habit } from "@/types";
 import { XIcon } from "@/components/Icons";
 import EmojiPicker from "emoji-picker-react";
 
@@ -17,7 +17,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
   const [title, setTitle] = useState<string>("");
   const [icon, setIcon] = useState<string>("🌱");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const [repeatType, setRepeatType] = useState<Repeat["type"]>("daily");
+  const [repeatType, setRepeatType] = useState<"daily" | "weekly" | "everyN">("daily");
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const [interval, setInterval] = useState<number>(2);
   const [error, setError] = useState<string>("");
@@ -27,12 +27,22 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
   useEffect(() => {
     if (habit) {
       setTitle(habit.title);
-      setIcon(habit.icon);
-      setRepeatType(habit.repeat.type);
-      if (habit.repeat.type === "weekly") {
-        setDaysOfWeek(habit.repeat.daysOfWeek || []);
-      } else if (habit.repeat.type === "everyN") {
-        setInterval(habit.repeat.interval || 2);
+      setIcon(habit.icons);
+      
+      // Parse cadence to extract repeat type and values
+      if (habit.cadence === "daily") {
+        setRepeatType("daily");
+      } else if (habit.cadence.startsWith("everyN-")) {
+        setRepeatType("everyN");
+        const intervalValue = parseInt(habit.cadence.split("-")[1]);
+        setInterval(intervalValue || 2);
+      } else if (habit.cadence.startsWith("weekly-")) {
+        setRepeatType("weekly");
+        const daysStr = habit.cadence.split("-")[1];
+        const days = daysStr.split(",").map((d) => parseInt(d));
+        setDaysOfWeek(days);
+      } else {
+        setRepeatType("daily");
       }
     }
   }, [habit, open]);
@@ -69,21 +79,24 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
     setError("");
     setRepeatError("");
 
-    let repeat: Repeat;
-    if (repeatType === "weekly") {
-      repeat = { type: "weekly", daysOfWeek };
+    let cadence: Habit["cadence"];
+    if (repeatType === "daily") {
+      cadence = "daily";
     } else if (repeatType === "everyN") {
-      repeat = { type: "everyN", interval };
+      cadence = `everyN-${interval}`;
+    } else if (repeatType === "weekly") {
+      // Format: "weekly-1,3,5" for Monday, Wednesday, Friday
+      cadence = `weekly-${daysOfWeek.join(",")}`;
     } else {
-      repeat = { type: "daily" };
+      cadence = "daily";
     }
 
     const updatedHabit: Habit = {
       id: habit?.id || crypto.randomUUID(), // Keep existing habit ID if editing
       title,
-      icon,
+      icons: icon,
       done: habit?.done || false,
-      repeat,
+      cadence,
     };
 
     onSave(updatedHabit); // Save habit when the button is clicked
@@ -151,7 +164,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
           <select
             className={`w-full border ${repeatError ? "border-red-500" : "border-gray-300"} rounded-lg px-3 py-2 focus:outline-none`}
             value={repeatType}
-            onChange={(e) => setRepeatType(e.target.value as Repeat["type"])}
+            onChange={(e) => setRepeatType(e.target.value as "daily" | "weekly" | "everyN")}
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly (pick days)</option>

@@ -1,12 +1,7 @@
-export type Repeat =
-    | { type: "daily" }
-    | { type: "weekly"; daysOfWeek: number[] } // 0=Sun ... 6=Sat
-    | { type: "everyN"; interval: number };
-
 export type Habit = {
-  id: string;
-  title: string;
-  icon: string;
-  done: boolean;
-  repeat: Repeat;
+    id: string;
+    title: string;
+    done: boolean;
+    icons: string;
+    cadence: "daily" | `everyN-${number}` | `weekly-${string}`; // "daily" | "everyN-<n_days>" | "weekly-<day_of_the_week>" or "weekly-<day1,day2,...>"
 };

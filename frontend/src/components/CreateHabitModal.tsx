@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { Habit, Repeat } from "@/types";
+import type { Habit } from "@/types";
 import { XIcon } from "@/components/Icons";
 import EmojiPicker from "emoji-picker-react";
 
@@ -16,7 +16,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("🌱");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [repeatType, setRepeatType] = useState<Repeat["type"]>("daily");
+  const [repeatType, setRepeatType] = useState<"daily" | "weekly" | "everyN">("daily");
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const [interval, setInterval] = useState(2);
   const [error, setError] = useState("");
@@ -47,21 +47,24 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
     setError("");
     setRepeatError("");
 
-    let repeat: Repeat;
-    if (repeatType === "weekly") {
-      repeat = { type: "weekly", daysOfWeek };
+    let cadence: Habit["cadence"];
+    if (repeatType === "daily") {
+      cadence = "daily";
     } else if (repeatType === "everyN") {
-      repeat = { type: "everyN", interval };
+      cadence = `everyN-${interval}`;
+    } else if (repeatType === "weekly") {
+      // Format: "weekly-1,3,5" for Monday, Wednesday, Friday
+      cadence = `weekly-${daysOfWeek.join(",")}`;
     } else {
-      repeat = { type: "daily" };
+      cadence = "daily";
     }
 
     const newHabit: Habit = {
       id: crypto.randomUUID(),
       title,
-      icon,
+      icons: icon,
       done: false,
-      repeat,
+      cadence,
     };
 
     onSave(newHabit);
@@ -140,7 +143,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
           <select
             className={`w-full border ${repeatError ? "border-red-500" : "border-gray-300"} rounded-lg px-3 py-2 focus:outline-none`}
             value={repeatType}
-            onChange={(e) => setRepeatType(e.target.value as Repeat["type"])}
+            onChange={(e) => setRepeatType(e.target.value as "daily" | "weekly" | "everyN")}
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly (pick days)</option>
