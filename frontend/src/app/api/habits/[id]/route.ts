@@ -4,16 +4,17 @@ const API_BASE = process.env.API_BASE ?? "http://localhost:8080/api/v1";
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const accessToken = req.cookies.get("access_token")?.value;
     if (!accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
 
-    const res = await fetch(`${API_BASE}/habits/${params.id}`, {
+    const res = await fetch(`${API_BASE}/habits/${id}`, {
         method: "PUT",
         headers: {
             "Authorization": `Bearer ${accessToken}`,
@@ -33,14 +34,16 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const accessToken = req.cookies.get("access_token")?.value;
     if (!accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const res = await fetch(`${API_BASE}/habits/${params.id}`, {
+    const { id } = await params;
+
+    const res = await fetch(`${API_BASE}/habits/${id}`, {
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${accessToken}`,
