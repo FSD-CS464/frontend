@@ -37,6 +37,17 @@ async function createHabitAPI(habit: Omit<Habit, "id">): Promise<Habit> {
     }
 }
 
+// Update habit via API
+async function updateHabitAPI(id: string, updates: Partial<Omit<Habit, "id">>): Promise<Habit> {
+    try {
+        const res = await api.put(`/habits/${id}`, updates);
+        return res.data.data;
+    } catch (error) {
+        console.error("Failed to update habit:", error);
+        throw error;
+    }
+}
+
 // Delete habit via API
 async function deleteHabitAPI(id: string): Promise<void> {
     try {
@@ -108,9 +119,33 @@ export default function HabitsPage() {
     }
 
     // Save edit
-    function handleUpdateHabit(updatedHabit: Habit) {
-        update(updatedHabit.id, updatedHabit);
-        setOpenEdit(false);
+    async function handleUpdateHabit(updatedHabit: Habit) {
+        try {
+            // Update habit in backend - send only changed fields
+            const currentHabit = habits.find((h) => h.id === updatedHabit.id);
+            if (!currentHabit) {
+                console.error("Habit not found in store");
+                return;
+            }
+
+            // Build update object with only changed fields
+            const updates: Partial<Omit<Habit, "id">> = {};
+            if (currentHabit.title !== updatedHabit.title) updates.title = updatedHabit.title;
+            if (currentHabit.icons !== updatedHabit.icons) updates.icons = updatedHabit.icons;
+            if (currentHabit.done !== updatedHabit.done) updates.done = updatedHabit.done;
+            if (currentHabit.cadence !== updatedHabit.cadence) updates.cadence = updatedHabit.cadence;
+
+            // Only update if there are changes
+            if (Object.keys(updates).length > 0) {
+                const updatedHabitFromAPI = await updateHabitAPI(updatedHabit.id, updates);
+                // Update store with the response from backend
+                update(updatedHabitFromAPI.id, updatedHabitFromAPI);
+            }
+            setOpenEdit(false);
+        } catch (error) {
+            console.error("Error updating habit:", error);
+            alert("Failed to update habit. Please try again.");
+        }
     }
 
     if (loading) {
@@ -215,7 +250,19 @@ export default function HabitsPage() {
                                 <input
                                     type="checkbox"
                                     checked={h.done}
-                                    onChange={() => update(h.id, { ...h, done: !h.done })}
+                                    onChange={async () => {
+                                        const newDoneValue = !h.done;
+                                        try {
+                                            // Update in backend first
+                                            const updatedHabit = await updateHabitAPI(h.id, { done: newDoneValue });
+                                            // Then update local store
+                                            update(updatedHabit.id, updatedHabit);
+                                        } catch (error) {
+                                            console.error("Error updating habit done status:", error);
+                                            // Revert the checkbox state on error
+                                            alert("Failed to update habit. Please try again.");
+                                        }
+                                    }}
                                     className="peer size-5 rounded border-neutral-300 accent-[#192752] transition-transform duration-150 ease-in-out hover:scale-110"
                                 />
 
