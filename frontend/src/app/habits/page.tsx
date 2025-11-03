@@ -66,28 +66,22 @@ export default function HabitsPage() {
     const [openEdit, setOpenEdit] = useState(false);
     const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
     const [loading, setLoading] = useState(true);
-    const [hydrated, setHydrated] = useState(false);
 
+    // Always fetch from server on mount - don't wait for localStorage hydration
     useEffect(() => {
-        const unsub = useHabitStore.persist.onFinishHydration(() => setHydrated(true));
-        setHydrated(true);
-        return unsub;
-    }, []);
-
-    useEffect(() => {
-        if (hydrated) {
-            (async () => {
-                try {
-                    const data = await fetchHabitsFromAPI();
-                    setAll(data);
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Error loading habits:", error);
-                    setLoading(false);
-                }
-            })();
-        }
-    }, [hydrated, setAll]);
+        (async () => {
+            try {
+                const data = await fetchHabitsFromAPI();
+                // Clear any existing habits and set fresh data from server
+                // This will automatically update localStorage via persist middleware
+                setAll(data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error loading habits:", error);
+                setLoading(false);
+            }
+        })();
+    }, [setAll]);
 
     // Create
     async function handleCreate(habit: Habit) {

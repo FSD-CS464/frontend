@@ -40,16 +40,9 @@ async function fetchHabitsFromAPI(): Promise<Habit[]> {
 
 export default function Page() {
     const [loading, setLoading] = useState(true);
-    const setAll = useHabitStore((s) => s.setAll);
-    const [hydrated, setHydrated] = useState(false);
+    const { habits, setAll } = useHabitStore();
     const [user, setUser] = useState<{ display_name: string } | null>(null);
     const [greeting, setGreeting] = useState(getGreeting());
-
-    useEffect(() => {
-        const unsub = useHabitStore.persist.onFinishHydration(() => setHydrated(true));
-        setHydrated(true);
-        return unsub;
-    }, []);
 
     // Fetch user data
     useEffect(() => {
@@ -70,22 +63,21 @@ export default function Page() {
         return () => clearInterval(interval);
     }, []);
 
+    // Always fetch from server on mount - don't wait for localStorage hydration
     useEffect(() => {
-        if (hydrated) {
-            (async () => {
-                try {
-                    const data = await fetchHabitsFromAPI();
-                    if (data.length > 0) {
-                        setAll(data);
-                    }
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Error loading habits:", error);
-                    setLoading(false);
-                }
-            })();
-        }
-    }, [hydrated, setAll]);
+        (async () => {
+            try {
+                const data = await fetchHabitsFromAPI();
+                // Clear any existing habits and set fresh data from server
+                // This will automatically update localStorage via persist middleware
+                setAll(data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error loading habits:", error);
+                setLoading(false);
+            }
+        })();
+    }, [setAll]);
 
     if (loading) {
         return (
@@ -117,7 +109,13 @@ export default function Page() {
                 <div className="mt-10 md:hidden">
                     <div className="text-2xl font-header">Finished these today?</div>
                     <div className="mt-3">
-                        <HabitsList />
+                        {habits.length > 0 ? (
+                            <HabitsList />
+                        ) : (
+                            <div className="card p-4 text-center text-gray-500">
+                                No habits yet!
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -144,7 +142,13 @@ export default function Page() {
                             <div>
                                 <div className="text-2xl font-header">Finished these today?</div>
                                 <div className="mt-3">
-                                    <HabitsList />
+                                    {habits.length > 0 ? (
+                                        <HabitsList />
+                                    ) : (
+                                        <div className="card p-4 text-center text-gray-500">
+                                            No habits yet!
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
