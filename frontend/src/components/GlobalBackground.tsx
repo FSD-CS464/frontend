@@ -16,7 +16,7 @@ function getTimeOfDay(): TimeOfDay {
     }
 }
 
-export default function TimeBasedBackground() {
+export default function GradientBackground() {
     const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>(getTimeOfDay());
 
     useEffect(() => {

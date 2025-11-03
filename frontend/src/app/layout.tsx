@@ -3,7 +3,7 @@ import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { Toaster } from "react-hot-toast";
 import EnergyWrapper from "@/components/EnergyWrapper";
-import TimeBasedBackground from "@/components/TimeBasedBackground";
+import GlobalBackground from "@/components/GlobalBackground";
 
 export const metadata: Metadata = {
     title: "Habit Buddy",
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" className={GeistSans.className}>
             <body>
-                <TimeBasedBackground />
+                <GlobalBackground />
                 <EnergyWrapper>
                     {children}
                 </EnergyWrapper>
