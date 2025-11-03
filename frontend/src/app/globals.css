@@ -2,60 +2,189 @@
 
 /* Brand colors */
 @theme {
-  --color-lemonyellow: #F7F052; 
-  --color-pink: #FF4DA1;
-  --color-orange: #FFA953;
-  --color-blue: #28A5FF;
-  --color-green: #50E59F;
-  --color-gray-100: #F4F4F4;
+    --color-lemonyellow: #F7F052;
+    --color-pink: #FF4DA1;
+    --color-orange: #FFA953;
+    --color-blue: #28A5FF;
+    --color-green: #50E59F;
+    --color-gray-100: #F4F4F4;
 
-  --color-brand: var(--color-blue);
-  --color-wallpaper: #FDFDFD;
-  --color-muted: #737373;
+    --color-brand: var(--color-blue);
+    --color-wallpaper: #FDFDFD;
+    --color-muted: #737373;
 }
 
 @font-face {
-  font-family: "TsunagiGothic";
-  src: url("/fonts/TsunagiGothic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
+    font-family: "TsunagiGothic";
+    src: url("/fonts/TsunagiGothic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
 }
 
 .font-header {
-  font-family: "TsunagiGothic", sans-serif;
+    font-family: "TsunagiGothic", sans-serif;
 }
 
-:root { color-scheme: light; }
-html, body { height: 100%; }
+:root {
+    color-scheme: light;
+}
+
+html,
 body {
-  background-color: var(--color-wallpaper);
-  @apply antialiased;
-  color: #192752;
+    height: 100%;
+}
+
+body {
+    background-color: var(--color-wallpaper);
+    @apply antialiased;
+    color: #192752;
 }
 
 /* Utilities for the day pills */
 .day-pill {
-  /* Responsive width using CSS clamp for smooth resizing */
-  width: clamp(56px, 11vw, 96px);
-  /* Keep the card proportion similar to mock */
-  aspect-ratio: 5 / 6;
-  /* Center everything */
-  @apply rounded-lg grid place-content-center text-center font-bold shadow-sm shrink-0; /* shrink-0 keeps width in horizontal scroll */
+    /* Responsive width using CSS clamp for smooth resizing */
+    width: clamp(56px, 11vw, 96px);
+    /* Keep the card proportion similar to mock */
+    aspect-ratio: 5 / 6;
+    /* Center everything */
+    @apply rounded-lg grid place-content-center text-center font-bold shadow-sm shrink-0;
+    /* shrink-0 keeps width in horizontal scroll */
 }
-.day-pill .dow { @apply text-[16px]; }
-.day-pill.past { 
-  @apply bg-[#E0E0E0] text-[#B5B5B5]; 
+
+.day-pill .dow {
+    @apply text-[16px];
+}
+
+.day-pill.past {
+    @apply bg-[#E0E0E0] text-[#B5B5B5];
 }
 
 /* Hide scrollbars for calendar strip on mobile */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
 /* Card */
-.card { @apply rounded-2xl shadow-sm border border-neutral-200 bg-white; }
+.card {
+    @apply rounded-2xl shadow-sm border border-neutral-200 bg-white;
+}
 
 /* Mobile bottom nav */
-.mobile-nav { @apply fixed bottom-0 inset-x-0 border-t border-neutral-200 bg-white; }
-.mobile-nav ul { @apply grid grid-cols-5; }
-.mobile-nav a { @apply py-3 text-center text-sm; }
-.mobile-nav a.active { @apply font-bold; color: #192752; }
+.mobile-nav {
+    @apply fixed bottom-0 inset-x-0 border-t border-neutral-200 bg-white;
+}
+
+.mobile-nav ul {
+    @apply grid grid-cols-5;
+}
+
+.mobile-nav a {
+    @apply py-3 text-center text-sm;
+}
+
+.mobile-nav a.active {
+    @apply font-bold;
+    color: #192752;
+}
+
+/* Time-based background animations */
+@keyframes gradient-shift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes cloud-drift {
+    0% {
+        transform: translateX(-100px);
+    }
+
+    100% {
+        transform: translateX(calc(100vw + 100px));
+    }
+}
+
+@keyframes star-twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes moon-glow {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        filter: blur(0px);
+    }
+
+    50% {
+        opacity: 1;
+        filter: blur(3px);
+    }
+}
+
+@keyframes sun-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.bg-animated {
+    animation: gradient-shift 45s ease infinite;
+    background-size: 200% 200%;
+}
+
+.bg-cloud {
+    animation: cloud-drift 90s linear infinite;
+}
+
+.bg-cloud-delayed {
+    animation: cloud-drift 120s linear infinite;
+    animation-delay: -30s;
+}
+
+.bg-star {
+    animation: star-twinkle 9s ease-in-out infinite;
+}
+
+.bg-star-delayed {
+    animation: star-twinkle 12s ease-in-out infinite;
+    animation-delay: -3s;
+}
+
+.bg-star-delayed-2 {
+    animation: star-twinkle 15s ease-in-out infinite;
+    animation-delay: -6s;
+}
+
+.bg-moon {
+    animation: moon-glow 12s ease-in-out infinite;
+}
+
+.bg-sun {
+    animation: sun-rotate 60s linear infinite;
+}
