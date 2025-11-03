@@ -1,0 +1,58 @@
+/* src/app/pomodoro/styles.module.css */
+
+.cameraContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3; /* responsive 640x480 */
+  background: #f8fafc;
+}
+
+.webcam, .segmentation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.petOverlay {
+  position: absolute;
+  bottom: 6%;
+  right: 8%;
+  width: 140px;
+  z-index: 2;
+  transition: opacity 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.loading, .error {
+  position: absolute;
+  z-index: 3;
+  bottom: 8px;
+  left: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.loading { background: rgba(0,0,0,0.6); color: white; }
+.error { background: rgba(255,0,0,0.75); color: white; }
+
+@keyframes hop {
+  0%   { transform: translateY(0) }
+  20%  { transform: translateY(-18px) }
+  40%  { transform: translateY(0) }
+  60%  { transform: translateY(-10px) }
+  100% { transform: translateY(0) }
+}
+
+.jump {
+  animation: hop 0.9s ease-out;
+}
+
+.webcam, .segmentation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.segmentation { z-index: 1; }
