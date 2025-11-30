@@ -1,12 +1,17 @@
-"use client"
+"use client";
+
 import { useState, useEffect } from "react";
 
 // Define the types for DayState and Day
 type DayState = "past" | "logged" | "future";
 
+// Define days of week as a constant tuple
+const DOWS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+type DOW = (typeof DOWS)[number];
+
 type Day = {
   day: number;
-  dow: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+  dow: DOW;
   state?: DayState;
 };
 
@@ -39,7 +44,7 @@ export default function CalendarStrip() {
       currentDate.setDate(startOfWeek.getDate() + i);
 
       // Get the day of the week and the day number
-      const dayOfWeek: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i];
+      const dayOfWeek: DOW = DOWS[i];
       const dayOfMonth = currentDate.getDate();
 
       // Determine the state (past, logged, future)

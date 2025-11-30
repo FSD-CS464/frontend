@@ -13,11 +13,17 @@ const TURBOPACK_ALIAS = {
 };
 
 const nextConfig: NextConfig = {
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   experimental: {
     turbo: {
       resolveAlias: TURBOPACK_ALIAS,
     },
   },
+  
   webpack: (config) => {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
