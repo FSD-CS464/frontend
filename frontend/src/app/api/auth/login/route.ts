@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify(body),
   });
 
-  const data = await upstream.json().catch(() => ({}));
+  const data = await upstream.json().catch(() => ({} as any));
 
-  // If backend returns error, just bubble it up
+  // Bubble up backend errors
   if (!upstream.ok) {
     return NextResponse.json(data, { status: upstream.status });
   }
@@ -22,34 +22,29 @@ export async function POST(req: NextRequest) {
   // Go backend returns: { access_token, refresh_token, user: { ... } }
   const { access_token, refresh_token, user, ...rest } = data as any;
 
-  // Detect if request came over HTTPS (for when you later add TLS)
-  const xfp = req.headers.get("x-forwarded-proto");
-  const isHttps = xfp === "https";
-
-  // Response body: include ok + user so any client code can rely on it
-  const res = NextResponse.json({
-    ok: true,
-    user,
-    ...rest,
-  });
-
-  const cookieOptions = {
+  const cookieBaseOptions = {
     httpOnly: true,
-    secure: isHttps,
+    secure: false,
     sameSite: "lax" as const,
     path: "/",
   };
 
+  const res = NextResponse.json({
+    ok: true,
+    user: user ?? null,
+    ...rest,
+  });
+
   if (access_token) {
     res.cookies.set("access_token", access_token, {
-      ...cookieOptions,
+      ...cookieBaseOptions,
       maxAge: 15 * 60, // 15 minutes
     });
   }
 
   if (refresh_token) {
     res.cookies.set("refresh_token", refresh_token, {
-      ...cookieOptions,
+      ...cookieBaseOptions,
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
   }
