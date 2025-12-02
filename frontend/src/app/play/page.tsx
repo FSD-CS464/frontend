@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import TopNav from "@/components/TopNav";
 import { api } from "@/app/lib/api";
+import { useHabitStore } from "@/store/habits";
 
 const GODOT_GAME_ORIGIN = "https://godot-deployment-ten.vercel.app";
 
@@ -14,6 +15,7 @@ export default function PlayPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { fetchEnergyAndMood } = useHabitStore();
 
   useEffect(() => {
     // Fetch user ID and access token
@@ -77,6 +79,27 @@ export default function PlayPage() {
       }
     };
   }, [currentUserId, accessToken]);
+
+  // Refresh energy and mood when page becomes visible (e.g., returning from games)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Add a small delay to ensure backend has processed the game save
+        setTimeout(() => {
+          fetchEnergyAndMood();
+        }, 500);
+      }
+    };
+    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    // Also refresh when component unmounts (user navigates away)
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      // Refresh when leaving the play page
+      fetchEnergyAndMood();
+    };
+  }, [fetchEnergyAndMood]);
 
   if (loading) {
     return (

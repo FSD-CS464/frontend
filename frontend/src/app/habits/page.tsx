@@ -59,7 +59,7 @@ async function deleteHabitAPI(id: string): Promise<void> {
 }
 
 export default function HabitsPage() {
-    const { habits, setAll, add, remove, update } = useHabitStore();
+    const { habits, setAll, add, remove, update, fetchEnergyAndMood } = useHabitStore();
     const [deleteMode, setDeleteMode] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -75,13 +75,15 @@ export default function HabitsPage() {
                 // Clear any existing habits and set fresh data from server
                 // This will automatically update localStorage via persist middleware
                 setAll(data);
+                // Fetch energy and mood from backend
+                await fetchEnergyAndMood();
                 setLoading(false);
             } catch (error) {
                 console.error("Error loading habits:", error);
                 setLoading(false);
             }
         })();
-    }, [setAll]);
+    }, [setAll, fetchEnergyAndMood]);
 
     // Create
     async function handleCreate(habit: Habit) {
@@ -134,6 +136,8 @@ export default function HabitsPage() {
                 const updatedHabitFromAPI = await updateHabitAPI(updatedHabit.id, updates);
                 // Update store with the response from backend
                 update(updatedHabitFromAPI.id, updatedHabitFromAPI);
+                // Refresh energy and mood from backend (in case done status changed)
+                await fetchEnergyAndMood();
             }
             setOpenEdit(false);
         } catch (error) {
@@ -247,10 +251,12 @@ export default function HabitsPage() {
                                     onChange={async () => {
                                         const newDoneValue = !h.done;
                                         try {
-                                            // Update in backend first
+                                            // Update in backend first (this will also update energy)
                                             const updatedHabit = await updateHabitAPI(h.id, { done: newDoneValue });
                                             // Then update local store
                                             update(updatedHabit.id, updatedHabit);
+                                            // Refresh energy and mood from backend
+                                            await fetchEnergyAndMood();
                                         } catch (error) {
                                             console.error("Error updating habit done status:", error);
                                             // Revert the checkbox state on error
