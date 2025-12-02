@@ -13,45 +13,41 @@ export default function PetBarPage() {
   const {
     isSleeping,
     energy,
-    mood,
-    setEnergy,
+    moodValue,
+    fetchEnergyAndMood,
     toggleSleep,
-    setMood,
   } = useHabitStore();
 
+  // Fetch energy and mood from backend on mount and when page becomes visible
   useEffect(() => {
-    let restore: NodeJS.Timeout | null = null;
-    if (isSleeping) {
-      restore = setInterval(() => {
-        setEnergy((e) => Math.min(100, e + 2));
-      }, 1000);
-    }
-    return () => {
-      if (restore) clearInterval(restore);
+    fetchEnergyAndMood();
+    
+    // Refresh when page becomes visible (e.g., returning from games)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Add a small delay to ensure backend has processed any updates
+        setTimeout(() => {
+          fetchEnergyAndMood();
+        }, 500);
+      }
     };
-  }, [isSleeping, setEnergy]);
-
-  useEffect(() => {
-    let drain: NodeJS.Timeout | null = null;
-    if (!isSleeping) {
-      drain = setInterval(() => {
-        setEnergy((e) => Math.max(0, e - 1));
-      }, 2000);
-    }
-    return () => {
-      if (drain) clearInterval(drain);
+    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    // Also set up a focus listener as a backup
+    const handleFocus = () => {
+      setTimeout(() => {
+        fetchEnergyAndMood();
+      }, 500);
     };
-  }, [isSleeping, setEnergy]);
-
-  useEffect(() => {
-    if (isSleeping) {
-      setMood("sleeping");
-    } else if (energy < 30) {
-      setMood("sad");
-    } else {
-      setMood("idle");
-    }
-  }, [isSleeping, energy, setMood]);
+    
+    window.addEventListener("focus", handleFocus);
+    
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchEnergyAndMood]);
 
   const handlePlayGames = () => router.push("/play");
 

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { Toaster } from "react-hot-toast";
-import EnergyWrapper from "@/components/EnergyWrapper";
 import GlobalBackground from "@/components/GlobalBackground";
 
 export const metadata: Metadata = {
@@ -29,9 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en" className={GeistSans.className}>
             <body>
                 {/* <GlobalBackground /> */}
-                <EnergyWrapper>
-                    {children}
-                </EnergyWrapper>
+                {children}
                 <Toaster position="top-right" />
             </body>
         </html>

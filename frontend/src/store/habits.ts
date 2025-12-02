@@ -16,14 +16,15 @@ type PetMood = "idle" | "happy" | "sad" | "sleeping";
 
 type PetState = {
   energy: number;
-  mood: PetMood;
+  moodValue: number; // Mood meter value (0-100)
+  mood: PetMood; // Mood type derived from moodValue
   isSleeping: boolean;
-  energyInterval: NodeJS.Timeout | null;
   setEnergy: (value: number | ((prev: number) => number)) => void;
+  setMoodValue: (value: number | ((prev: number) => number)) => void;
   setMood: (mood: PetMood) => void;
   toggleSleep: () => void;
-  startEnergyLoop: () => void;
-  stopEnergyLoop: () => void;
+  fetchEnergyAndMood: () => Promise<void>;
+  syncEnergyToBackend: (energy: number) => Promise<void>;
 };
 
 export const useHabitStore = create(
@@ -32,21 +33,35 @@ export const useHabitStore = create(
       // habit state
       habits: [],
 
-      toggle: (id) =>
-        set((s) => {
-          const updated = s.habits.map((h) =>
-            h.id === id ? { ...h, done: !h.done } : h
+      toggle: async (id) => {
+        const state = get();
+        const toggledHabit = state.habits.find((h) => h.id === id);
+        if (!toggledHabit) return;
+        
+        const wasDone = toggledHabit.done;
+        const newDoneValue = !wasDone;
+        
+        try {
+          // Update habit in backend (which will also update energy)
+          const { api } = await import("@/app/lib/api");
+          const response = await api.put(`/habits/${id}`, { done: newDoneValue });
+          const updatedHabit = response.data.data;
+          
+          // Update local state with backend response
+          const updated = state.habits.map((h) =>
+            h.id === id ? updatedHabit : h
           );
-
-          const toggledHabit = s.habits.find((h) => h.id === id);
-          const wasDone = toggledHabit?.done ?? false;
-          const energyChange = wasDone ? -5 : +5; // lose energy if undone, gain if done
-
-          const newEnergy = Math.min(100, Math.max(0, s.energy + energyChange));
-          const newMood = wasDone ? "sad" : "happy";
-
-          return { habits: updated, energy: newEnergy, mood: newMood };
-        }),
+          
+          // Fetch updated energy from backend
+          await state.fetchEnergyAndMood();
+          
+          // Update local state
+          set({ habits: updated });
+        } catch (error) {
+          console.error("Failed to toggle habit:", error);
+          // Revert on error - don't update state
+        }
+      },
 
       setAll: (habits) => set({ habits }),
 
@@ -68,10 +83,10 @@ export const useHabitStore = create(
         })),
 
       // pet state
-      energy: 80,
+      energy: 30, // Default energy
+      moodValue: 50, // Default mood value
       mood: "idle",
       isSleeping: false,
-      energyInterval: null,
 
       setEnergy: (value: number | ((prev: number) => number)) =>
         set((state) => ({
@@ -81,40 +96,81 @@ export const useHabitStore = create(
               : value,
         })),
 
+      setMoodValue: (value: number | ((prev: number) => number)) =>
+        set((state) => {
+          const newMoodValue =
+            typeof value === "function"
+              ? (value as (n: number) => number)(state.moodValue)
+              : value;
+          const clampedMoodValue = Math.min(100, Math.max(0, newMoodValue));
+          
+          // Update mood type based on mood value
+          let newMood: PetMood = state.mood;
+          if (state.isSleeping) {
+            newMood = "sleeping";
+          } else if (clampedMoodValue < 30) {
+            newMood = "sad";
+          } else if (clampedMoodValue <= 70) {
+            newMood = "idle";
+          } else {
+            newMood = "happy";
+          }
+          
+          return { moodValue: clampedMoodValue, mood: newMood };
+        }),
+
       setMood: (mood) => set({ mood }),
 
       toggleSleep: () =>
-        set((s) => ({
-          isSleeping: !s.isSleeping,
-          mood: s.isSleeping ? "idle" : "sleeping",
-        })),
+        set((s) => {
+          const newIsSleeping = !s.isSleeping;
+          const newMood: PetMood = newIsSleeping ? "sleeping" : 
+            s.moodValue < 30 ? "sad" :
+            s.moodValue <= 70 ? "idle" : "happy";
+          return { isSleeping: newIsSleeping, mood: newMood };
+        }),
 
-      // energy bar
-      startEnergyLoop: () => {
-        const current = get();
-        if (current.energyInterval) return;
-
-        const interval = setInterval(() => {
-          set((s) => {
-            const delta = s.isSleeping ? +2 : -1;
-            const newEnergy = Math.min(100, Math.max(0, s.energy + delta));
-
-            let newMood: PetMood = s.mood;
-            if (s.isSleeping) newMood = "sleeping";
-            else if (newEnergy < 30) newMood = "sad";
-            else newMood = "idle";
-
-            return { energy: newEnergy, mood: newMood };
+      // Fetch energy and mood from backend
+      fetchEnergyAndMood: async () => {
+        try {
+          const { api } = await import("@/app/lib/api");
+          const [energyRes, moodRes] = await Promise.all([
+            api.get("/users/me/energy").catch(() => ({ data: { energy: 30 } })),
+            api.get("/game/mood").catch(() => ({ data: { mood: 50 } })),
+          ]);
+          
+          const energy = energyRes.data?.energy ?? 30;
+          const rawMoodValue = moodRes.data?.mood ?? 50;
+          // Ensure mood is within 0-100 range
+          const moodValue = Math.min(100, Math.max(0, rawMoodValue));
+          
+          set((state) => {
+            // Calculate mood type based on moodValue and isSleeping state
+            let newMood: PetMood;
+            if (state.isSleeping) {
+              newMood = "sleeping";
+            } else if (moodValue < 30) {
+              newMood = "sad";
+            } else if (moodValue <= 70) {
+              newMood = "idle";
+            } else {
+              newMood = "happy";
+            }
+            return { energy, moodValue, mood: newMood };
           });
-        }, 2000);
-
-        set({ energyInterval: interval });
+        } catch (error) {
+          console.error("Failed to fetch energy and mood:", error);
+        }
       },
 
-      stopEnergyLoop: () => {
-        const interval = get().energyInterval;
-        if (interval) clearInterval(interval);
-        set({ energyInterval: null });
+      // Sync energy to backend
+      syncEnergyToBackend: async (energy: number) => {
+        try {
+          const { api } = await import("@/app/lib/api");
+          await api.put("/users/me/energy", { energy });
+        } catch (error) {
+          console.error("Failed to sync energy to backend:", error);
+        }
       },
     }),
     {

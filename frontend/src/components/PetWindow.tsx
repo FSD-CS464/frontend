@@ -12,7 +12,7 @@ type Animation =
   | "sadIdle";
 
 export default function PetWindow() {
-  const { energy, isSleeping, mood, toggleSleep } = useHabitStore();
+  const { moodValue, isSleeping, mood, toggleSleep } = useHabitStore();
 
   const [animation, setAnimation] = useState<Animation>("neutralIdle");
   const [isDay, setIsDay] = useState(true);
@@ -30,10 +30,10 @@ export default function PetWindow() {
 
   useEffect(() => {
     if (isSleeping) setAnimation("sleep");
-    else if (energy < 30) setAnimation("sadIdle");
-    else if (energy < 70) setAnimation("neutralIdle");
+    else if (moodValue < 30) setAnimation("sadIdle");
+    else if (moodValue <= 70) setAnimation("neutralIdle");
     else setAnimation("happyIdle");
-  }, [isSleeping, energy]);
+  }, [isSleeping, moodValue]);
 
   const backgroundSrc = isDay
     ? "/background/DAY.png"
@@ -47,9 +47,9 @@ export default function PetWindow() {
     sadIdle: "/petanimation/sad_idle.gif",
   };
 
-  const resetToEnergyMood = () => {
-    if (energy < 30) setAnimation("sadIdle");
-    else if (energy < 70) setAnimation("neutralIdle");
+  const resetToMoodValue = () => {
+    if (moodValue < 30) setAnimation("sadIdle");
+    else if (moodValue <= 70) setAnimation("neutralIdle");
     else setAnimation("happyIdle");
   };
 
@@ -95,10 +95,10 @@ export default function PetWindow() {
           if (isSleeping) {
             toggleSleep(); // wake up globally
             setAnimation("happyIdle");
-            setTimeout(resetToEnergyMood, 1000);
+            setTimeout(resetToMoodValue, 1000);
           } else {
             setAnimation("happy2Idle"); // playful reaction
-            setTimeout(resetToEnergyMood, 1000);
+            setTimeout(resetToMoodValue, 1000);
           }
         }}
       />

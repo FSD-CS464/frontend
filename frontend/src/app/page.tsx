@@ -40,7 +40,7 @@ async function fetchHabitsFromAPI(): Promise<Habit[]> {
 
 export default function Page() {
     const [loading, setLoading] = useState(true);
-    const { habits, setAll } = useHabitStore();
+    const { habits, setAll, fetchEnergyAndMood } = useHabitStore();
     const [user, setUser] = useState<{ display_name: string } | null>(null);
     const [greeting, setGreeting] = useState(getGreeting());
 
@@ -71,13 +71,41 @@ export default function Page() {
                 // Clear any existing habits and set fresh data from server
                 // This will automatically update localStorage via persist middleware
                 setAll(data);
+                // Fetch energy and mood from backend
+                await fetchEnergyAndMood();
                 setLoading(false);
             } catch (error) {
                 console.error("Error loading habits:", error);
                 setLoading(false);
             }
         })();
-    }, [setAll]);
+    }, [setAll, fetchEnergyAndMood]);
+    
+    // Refresh energy and mood when page becomes visible (e.g., returning from games)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                // Add a small delay to ensure backend has processed any updates
+                setTimeout(() => {
+                    fetchEnergyAndMood();
+                }, 500);
+            }
+        };
+        
+        const handleFocus = () => {
+            setTimeout(() => {
+                fetchEnergyAndMood();
+            }, 500);
+        };
+        
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("focus", handleFocus);
+        
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("focus", handleFocus);
+        };
+    }, [fetchEnergyAndMood]);
 
     if (loading) {
         return (
