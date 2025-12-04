@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Habit } from "@/types";
 import { XIcon } from "@/components/Icons";
 import EmojiPicker from "emoji-picker-react";
+import { generateUUID } from "@/utils/uuid";
 
 type Props = {
   open: Boolean,
@@ -60,7 +61,7 @@ export default function CreateHabitModal({ open, onClose, onSave }: Props) {
     }
 
     const newHabit: Habit = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       title,
       icons: icon,
       done: false,

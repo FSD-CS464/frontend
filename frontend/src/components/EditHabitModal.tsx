@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { Habit } from "@/types";
 import { XIcon } from "@/components/Icons";
 import EmojiPicker from "emoji-picker-react";
+import { generateUUID } from "@/utils/uuid";
 
 type Props = {
   open: boolean;
@@ -92,7 +93,7 @@ export default function EditHabitModal({ open, onClose, onSave, habit }: Props) 
     }
 
     const updatedHabit: Habit = {
-      id: habit?.id || crypto.randomUUID(), // Keep existing habit ID if editing
+      id: habit?.id || generateUUID(), // Keep existing habit ID if editing
       title,
       icons: icon,
       done: habit?.done || false,
